@@ -75,12 +75,15 @@ class BlocTemp extends StatelessWidget {
 
 class ListViewDoble extends StatelessWidget {
   final IndexedWidgetBuilder itemBuilder;
+  final double aspecradio;
 
-  const ListViewDoble({Key? key, required this.itemBuilder}) : super(key: key);
+  const ListViewDoble(
+      {Key? key, required this.itemBuilder, this.aspecradio = 0.8})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Transform.scale(
-      scale: 0.8,
+      scale: 1,
       child: Container(
         decoration: BoxDecoration(border: Border.all(color: Colors.red)),
         child: OverflowBox(
@@ -89,12 +92,29 @@ class ListViewDoble extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 200, top: 100),
               itemCount: datos.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                childAspectRatio: 0.8,
+                childAspectRatio: aspecradio,
                 crossAxisCount: 2,
                 //mainAxisSpacing: 20,
                 //  crossAxisSpacing: 20,
               ),
-              itemBuilder: itemBuilder),
+              itemBuilder: (context, index) {
+                return LayoutBuilder(builder: (context, constraints) {
+                  final altoitem = constraints.maxHeight;
+                  final altoitemdos = constraints.maxWidth / aspecradio;
+                  //la relacion de aspecto mantiene el alto en relacion del ancho
+                  return Transform.translate(
+                    offset: Offset(0.0, index.isOdd ? altoitemdos / 2 : 0),
+                    child: Card(
+                      margin: EdgeInsets.all(8),
+                      color: Colors.grey[300],
+                      elevation: 8,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                      child: itemBuilder(context, index),
+                    ),
+                  );
+                });
+              }),
         ),
       ),
     );
@@ -111,24 +131,45 @@ class Data {
 
 List<Data> datos = [
   Data(
-      url: 'https://picsum.photos/100/100', nombre: 'Primero ', precio: '\n56'),
+      url: 'https://picsum.photos/id/20/120',
+      nombre: 'Primero ',
+      precio: '\$56'),
   Data(
-      url: 'https://picsum.photos/100/100', nombre: 'Primero ', precio: '\n56'),
+      url: 'https://picsum.photos/id/13/120',
+      nombre: 'Primero ',
+      precio: '\$56'),
   Data(
-      url: 'https://picsum.photos/100/100', nombre: 'Primero ', precio: '\n56'),
+      url: 'https://picsum.photos/id/222/120',
+      nombre: 'Primero ',
+      precio: '\$56'),
   Data(
-      url: 'https://picsum.photos/100/100', nombre: 'Primero ', precio: '\n56'),
+      url: 'https://picsum.photos/id/165/120',
+      nombre: 'Primero ',
+      precio: '\$56'),
   Data(
-      url: 'https://picsum.photos/100/100', nombre: 'Primero ', precio: '\n56'),
+      url: 'https://picsum.photos/id/62/120',
+      nombre: 'Primero ',
+      precio: '\$56'),
   Data(
-      url: 'https://picsum.photos/100/100', nombre: 'Primero ', precio: '\n56'),
+      url: 'https://picsum.photos/id/44/120',
+      nombre: 'Primero ',
+      precio: '\$56'),
   Data(
-      url: 'https://picsum.photos/100/100', nombre: 'Primero ', precio: '\n56'),
+      url: 'https://picsum.photos/id/99/120',
+      nombre: 'Primero ',
+      precio: '\$56'),
   Data(
-      url: 'https://picsum.photos/100/100', nombre: 'Primero ', precio: '\n56'),
+      url: 'https://picsum.photos/id/24/120',
+      nombre: 'Primero ',
+      precio: '\$56'),
   Data(
-      url: 'https://picsum.photos/100/100', nombre: 'Primero ', precio: '\n56'),
-  Data(url: 'https://picsum.photos/100/100', nombre: 'Primero ', precio: '\n56')
+      url: 'https://picsum.photos/id/55/120',
+      nombre: 'Primero ',
+      precio: '\$56'),
+  Data(
+      url: 'https://picsum.photos/id/565/120',
+      nombre: 'Primero ',
+      precio: '\$56')
 ];
 
 class ItemWidget extends StatelessWidget {
@@ -140,44 +181,38 @@ class ItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: Offset(0.0, index.isOdd ? 100.0 : 0.0),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 11,
-        color: Colors.white70,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ClipOval(
-              child: Image.network(data.url),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              '${data.nombre}',
-              style: TextStyle(fontSize: 20),
-            ),
-            Text(
-              '${data.precio}',
-              style: TextStyle(fontSize: 20),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                  5,
-                  (index) => Icon(
-                        index < 4 ? Icons.star : Icons.star_border_outlined,
-                        color: Colors.yellow[700],
-                      )),
-            )
-          ],
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ClipOval(
+          child: Image.network(
+            data.url,
+          ),
         ),
-      ),
+        SizedBox(
+          height: 5,
+        ),
+        Text(
+          '${data.nombre}',
+          style: TextStyle(fontSize: 20),
+        ),
+        Text(
+          '${data.precio}',
+          style: TextStyle(fontSize: 20),
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+              5,
+              (index) => Icon(
+                    index < 4 ? Icons.star : Icons.star_border_outlined,
+                    color: Colors.yellow[700],
+                  )),
+        )
+      ],
     );
   }
 }
