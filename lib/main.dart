@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frutas/bloc/frutas_bloc.dart';
+import 'package:frutas/vistaselecionada.dart';
+
+import 'model.dart';
+import 'widget/duallistview.dart';
 
 void main() => runApp(Mybloc());
 
@@ -21,20 +25,38 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Material App',
+      title: 'Dual Listview',
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Material App Bar'),
+          title: Text('Stock 2.0'),
         ),
         body: BlocBuilder<FrutasBloc, FrutasState>(
-          builder: (context, statez) {
-            return ListViewDoble(
-              itemBuilder: (BuildContext context, int index) {
-                return ItemWidget(
-                  data: datos[index],
-                  index: index,
-                );
-              },
+          builder: (context, state) {
+            return Column(
+              children: [
+                Expanded(
+                  flex: 8,
+                  child: Container(
+                    child: ListViewDoble(
+                      itemCount: datos.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return ItemWidget(
+                          data: datos[index],
+                          index: index,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                Expanded(
+                    flex: 1,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(50)),
+                      child: Container(
+                        color: Colors.black,
+                      ),
+                    ))
+              ],
             );
           },
         ),
@@ -73,105 +95,6 @@ class BlocTemp extends StatelessWidget {
   }
 }
 
-class ListViewDoble extends StatelessWidget {
-  final IndexedWidgetBuilder itemBuilder;
-  final double aspecradio;
-
-  const ListViewDoble(
-      {Key? key, required this.itemBuilder, this.aspecradio = 0.8})
-      : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return Transform.scale(
-      scale: 1,
-      child: Container(
-        decoration: BoxDecoration(border: Border.all(color: Colors.red)),
-        child: OverflowBox(
-          maxHeight: MediaQuery.of(context).size.height * 1.1,
-          child: GridView.builder(
-              padding: EdgeInsets.only(bottom: 200, top: 100),
-              itemCount: datos.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                childAspectRatio: aspecradio,
-                crossAxisCount: 2,
-                //mainAxisSpacing: 20,
-                //  crossAxisSpacing: 20,
-              ),
-              itemBuilder: (context, index) {
-                return LayoutBuilder(builder: (context, constraints) {
-                  final altoitem = constraints.maxHeight;
-                  final altoitemdos = constraints.maxWidth / aspecradio;
-                  //la relacion de aspecto mantiene el alto en relacion del ancho
-                  return Transform.translate(
-                    offset: Offset(0.0, index.isOdd ? altoitemdos / 2 : 0),
-                    child: Card(
-                      margin: EdgeInsets.all(8),
-                      color: Colors.grey[300],
-                      elevation: 8,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
-                      child: itemBuilder(context, index),
-                    ),
-                  );
-                });
-              }),
-        ),
-      ),
-    );
-  }
-}
-
-class Data {
-  final String url;
-  final String nombre;
-  final String precio;
-
-  Data({required this.url, required this.nombre, required this.precio});
-}
-
-List<Data> datos = [
-  Data(
-      url: 'https://picsum.photos/id/20/120',
-      nombre: 'Primero ',
-      precio: '\$56'),
-  Data(
-      url: 'https://picsum.photos/id/13/120',
-      nombre: 'Primero ',
-      precio: '\$56'),
-  Data(
-      url: 'https://picsum.photos/id/222/120',
-      nombre: 'Primero ',
-      precio: '\$56'),
-  Data(
-      url: 'https://picsum.photos/id/165/120',
-      nombre: 'Primero ',
-      precio: '\$56'),
-  Data(
-      url: 'https://picsum.photos/id/62/120',
-      nombre: 'Primero ',
-      precio: '\$56'),
-  Data(
-      url: 'https://picsum.photos/id/44/120',
-      nombre: 'Primero ',
-      precio: '\$56'),
-  Data(
-      url: 'https://picsum.photos/id/99/120',
-      nombre: 'Primero ',
-      precio: '\$56'),
-  Data(
-      url: 'https://picsum.photos/id/24/120',
-      nombre: 'Primero ',
-      precio: '\$56'),
-  Data(
-      url: 'https://picsum.photos/id/55/120',
-      nombre: 'Primero ',
-      precio: '\$56'),
-  Data(
-      url: 'https://picsum.photos/id/565/120',
-      nombre: 'Primero ',
-      precio: '\$56')
-];
-
 class ItemWidget extends StatelessWidget {
   final index;
   final Data data;
@@ -181,38 +104,60 @@ class ItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ClipOval(
-          child: Image.network(
-            data.url,
+    return GestureDetector(
+      onTap: () {
+        print('ok --> ${index}');
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+              //opaque: false,
+              pageBuilder: (BuildContext context, Animation<double> animation,
+                  Animation<double> secondaryAnimation) {
+            return VistaSelecion(data: data);
+          }, transitionsBuilder: (context, animation, _, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          }),
+        );
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ClipOval(
+            child: Hero(
+              tag: '${data.url}',
+              child: Image.network(
+                data.url,
+              ),
+            ),
           ),
-        ),
-        SizedBox(
-          height: 5,
-        ),
-        Text(
-          '${data.nombre}',
-          style: TextStyle(fontSize: 20),
-        ),
-        Text(
-          '${data.precio}',
-          style: TextStyle(fontSize: 20),
-        ),
-        SizedBox(
-          height: 5,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-              5,
-              (index) => Icon(
-                    index < 4 ? Icons.star : Icons.star_border_outlined,
-                    color: Colors.yellow[700],
-                  )),
-        )
-      ],
+          SizedBox(
+            height: 5,
+          ),
+          Text(
+            '${data.nombre}',
+            style: TextStyle(fontSize: 20),
+          ),
+          Text(
+            '${data.precio}',
+            style: TextStyle(fontSize: 20),
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+                5,
+                (index) => Icon(
+                      index < 4 ? Icons.star : Icons.star_border_outlined,
+                      color: Colors.yellow[700],
+                    )),
+          )
+        ],
+      ),
     );
   }
 }
